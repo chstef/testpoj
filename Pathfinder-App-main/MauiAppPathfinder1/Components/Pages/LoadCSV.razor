@@ -1,0 +1,292 @@
+﻿@* // <copyright file="LoadCSV.razor" company="rpm informatik GmbH">
+// Copyright (c) 2024 All Rights Reserved - rpm informatik GmbH
+// </copyright>
+// <author>Stefan Weber</author>
+// <date>15.09.2024</date>
+// <summary>Loads and reads CSV-Data into the Database for the Pathfinder - App</summary>
+// *@
+
+@page "/loadcsv"
+@inject MauiAppPathfinder1DataContext  mapp
+
+@using DevExpress.Blazor
+@using System.Text
+@using MauiAppPathfinder1.DBContext
+
+<style>
+    btn-test2:hover {
+        background-color: lightsteelblue;
+    }
+
+    button:hover {
+        background-color: lightsteelblue;
+    }
+
+    a:hover {
+        background-color: lightsteelblue;
+    }
+
+</style>
+
+<div class="nav-item px-10">
+    <table class="table table-sm table-light">
+        <tr class="table-light">
+            <td class="table-light bg-light" width="200px">
+                <h3>  Upload CSV-File </h3>
+            </td>
+            <td class="table-light  bg-light" width="50px">
+                <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span><button type="button" class="btn btn-light">Home</button>
+                </NavLink>
+            </td>
+            <td class="table-light  bg-light" width="120px">
+                <NavLink class="nav-link" href="pageselection">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span><button type="button" class="btn btn-light">Path&nbsp;selection</button>
+                </NavLink>
+            </td>
+            <td class="table-light  bg-light"></td>
+        </tr>
+    </table>
+
+</div>
+
+<style>
+    .upload-container,
+.upload-container > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+}
+.drop-file-icon {
+    background-size: contain;
+    mask-repeat: no-repeat;
+    -webkit-mask-repeat: no-repeat;
+    background-position: center center;
+    background-color: #ADB5BD;
+    width: 48px;
+    height: 48px;
+    -webkit-mask-image: url("drop-file.svg");
+    mask-image: url("drop-file.svg");
+}
+.drop-file-label {
+    font-weight: 500;
+    font-size: 1rem;
+}
+
+</style>
+
+
+<div class="upload-container">
+    <div style="@(SelectedFilesCount > 0 ? "display: none" : string.Empty)">
+        <span class="drop-file-icon mb-3"></span>
+        <span class="drop-file-label mb-3">Click the Select File button to select files</span>
+    </div>
+    <DxFileInput
+              UploadMode="@UploadMode.OnButtonClick"
+              AllowMultiFileUpload="true"
+              MaxFileSize="15000000"
+              SelectedFilesChanged="@SelectedFilesChanged"
+              FilesUploading="OnFilesUploading">
+    </DxFileInput>
+</div>
+
+<br />
+
+<div class="nav-item px-10">
+    <table class="table table-sm table-light">
+        <tr class="table-light">
+            <td class="table-light bg-light" width="500px">
+                <h3>  Download CSV-File </h3>
+            </td>
+  
+            <td class="table-light  bg-light"></td>
+        </tr>
+    </table>
+</div>
+<div> Export CSV - File to Download Directory:
+    <DxButton @ref="ButtonFileExport" onclick="@onClickExportFile">Export File&nbsp;</DxButton>&nbsp;@SavedExportFilePath
+</div>
+<br /><br />&nbsp;
+@code {
+    DxButton ButtonFileExport { get; set; }
+
+    //// <summary>
+    /// List all selected files..
+    /// </summary>
+    int SelectedFilesCount { get; set; }
+    protected void SelectedFilesChanged(IEnumerable<UploadFileInfo> files)
+    {
+        SelectedFilesCount = files.ToList().Count;
+        InvokeAsync(StateHasChanged);
+    }
+
+    /// <summary>
+    /// Import data from CSV-File to the Database in the right order separeted by a ';'
+    /// </summary>
+    /// <param name="args"></param>
+    /// <returns>void Task</returns>
+    protected async Task OnFilesUploading(FilesUploadingEventArgs args)
+    {
+        var file = args.Files[0];
+        using var stream = new System.IO.MemoryStream();
+        await file.OpenReadStream(file.Size).CopyToAsync(stream);
+        string getFile =  Encoding.UTF8.GetString(stream.GetBuffer());
+        int strlen = getFile.Length; int posSt = 0;
+        List<string> listsearchstr = new() { "Nr.","Name","Dateiname","Path Exists","File Exists","Verzeichnis","Id2" };
+        if (strlen > 10)
+        {
+            int z = 0;
+            while (z < listsearchstr.Count)
+            {
+                int op = posSt - getFile.IndexOf(";");
+                string str2 = getFile.Substring(posSt,   getFile.IndexOf(";"));
+
+                if (z == listsearchstr.Count - 1)
+                {
+
+                    str2 = getFile.Substring(posSt, getFile.IndexOf("\r\n"));
+                    posSt = getFile.IndexOf("\r\n") + 1;
+
+                }else
+                    posSt = getFile.IndexOf(";") + 1;
+                if (!str2.Equals(listsearchstr[z])) return;
+                getFile = getFile.Substring(posSt, getFile.Length-posSt);
+                z++; posSt = 0;
+            }
+            z = 0; 
+            bool more = true;
+            while (more)
+            {
+                z = 0;
+                more = false; MauiAppPathfinder1.Models.ProDocument proDocument = new();
+                while (z < listsearchstr.Count)
+                {
+                    int op = getFile.IndexOf(";"); string str2 = string.Empty;
+                    if (op >= 0)
+                        str2 = getFile.Substring(posSt, getFile.IndexOf(";"));
+                    else {  
+                        str2 = getFile; break;
+                    }
+                    if (z == listsearchstr.Count - 1)
+                    {
+                        str2 = getFile.Substring(posSt, getFile.IndexOf("\r\n"));
+                        posSt = getFile.IndexOf("\r\n") + 1;
+                        if (posSt > 0) more = true;
+                    }
+                    else
+                        posSt = getFile.IndexOf(";") + 1;
+
+                    switch (z)
+                    {
+                        case 0: // id 
+                            {
+                                int zid = Int32.Parse(str2);
+                                if (zid == 0) return;
+                                break;
+                            }
+                        case 1: // Name:
+                            {
+                                proDocument.Name = str2;
+                                break;
+
+                            }
+                        case 2: // Dateiname:
+                            {
+                                proDocument.Dateiname = str2;
+                                break;
+
+                            }
+                        case 5: // Path:
+                            {
+                                proDocument.Path = str2;
+                                break;
+
+                            }
+                    }
+
+                    getFile = getFile.Substring(posSt, getFile.Length - posSt);
+                    z++; posSt = 0;
+
+                }
+                mapp.AddItem(proDocument);
+            }
+        }
+    }
+
+    private string? SavedExportFilePath { get; set; }
+
+    /// <summary>
+    /// Button clicked to export a file into Downloads directory
+    /// </summary>
+    public void onClickExportFile()
+    {
+        string targetFileName = "ExportResult_CSV"; string exc = "csv";
+        string path = Path.GetDirectoryName(Environment.GetFolderPath(Environment.SpecialFolder.Personal));
+        path = Path.Combine(path, "Downloads");
+        // Write the file content to the app data directory
+        //string targetFile = System.IO.Path.Combine(FileSystem.Current.AppDataDirectory, targetFileName);
+        string targetFile = System.IO.Path.Combine(path, targetFileName + "." + exc);
+        int z = 1;
+        while (new FileInfo(targetFile).Exists)
+        {
+            targetFile = System.IO.Path.Combine(path, targetFileName + " (" + z.ToString() + ")." + exc);
+            z++;
+        }
+        SavedExportFilePath = targetFile;
+        onClickExportFile2(targetFile);
+    }
+
+    /// <summary>
+    /// Create loaded file with data from the database - Objects.
+    /// </summary>
+    /// <param name="targetFile"></param>
+    public async void onClickExportFile2(string targetFile)
+    {
+        string wstr = string.Empty; int z = 0;
+        List<string> listsearchstr = new() { "Nr.", "Name", "Dateiname", "Path Exists", "File Exists", "Verzeichnis", "Id2" };
+        while(z< listsearchstr.Count)
+        {
+            wstr += listsearchstr[z];
+            if (z < listsearchstr.Count - 1)
+                wstr += ";";
+            else
+                wstr += "\r\n";
+            z++;
+        }
+        //wstr += ";";
+        var prodocList3 = await mapp.CheckDB();
+        Home home = new();
+        foreach (var product in prodocList3)
+        {
+            home.CallSearchProp(product);
+
+            wstr += product.Id.ToString() + ";";
+            wstr += product.Name + ";";
+            wstr += product.Dateiname + ";";
+            wstr += (product.PathExists ? "TRUE" : "FALSE") + ";";
+            wstr += (product.FileExists ? "TRUE" : "FALSE") + ";";
+            wstr += product.Path + ";";
+            wstr += product.Id.ToString() + "\r\n";
+        }
+
+        wstr = wstr.Substring(0, wstr.Length - 2);
+        WirteTextToFile(wstr, targetFile);
+    }
+
+    /// <summary>
+    /// Write the file to the directory, per Ouput - Stream - Object
+    /// </summary>
+    /// <param name="text"></param>
+    /// <param name="targetFile"></param>
+    public async void WirteTextToFile(string text, string targetFile)
+    {
+     
+        using FileStream outputStream = System.IO.File.OpenWrite(targetFile);
+        using StreamWriter streamWriter = new StreamWriter(outputStream);  
+        await streamWriter.WriteAsync(text);  
+ 
+    } 
+
+}

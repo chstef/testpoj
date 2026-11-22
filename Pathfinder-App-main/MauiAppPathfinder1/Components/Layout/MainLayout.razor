@@ -1,0 +1,97 @@
+﻿@* // <copyright file="MainLayout.razor" company="rpm informatik GmbH">
+// Copyright (c) 2024 All Rights Reserved - rpm informatik GmbH
+// </copyright>
+// <author>Stefan Weber</author>
+// <date>09.09.2024</date>
+// <summary>MainLayout for the Body Razor  - Displays Version from the Options</summary>
+// *@
+
+@inherits LayoutComponentBase
+
+
+<div class="page">
+@*     <div class="sidebar">
+        <NavMenu />
+    </div> *@
+
+   <main>
+@*         <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>&nbsp;Version @(version)
+        </div>
+ *@
+      <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+            .navbar {
+                margin-bottom: 5px;
+          
+            }
+            .bold {
+                font-weight : bold;
+            }
+            .nodec {
+                text-decoration : none;
+            }
+    </style>
+
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <a class="navbar-brand bold" href="#" >&nbsp;&nbsp;Allgemein</a>
+
+            <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
+                <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="#">&nbsp;&nbsp;Home <span class="sr-only">(current)</span></a>
+                    </li> 
+                    @if(true){
+                    <li class="nav-item active">
+                        <a class="nav-link" href="loadcsv">&nbsp;&nbsp;CSV <span class="sr-only">(current)</span></a>
+                    </li>
+                    }
+                    <li class="nav-item">
+                        <a class="nav-link" href="https://www.rpm-it.ch/">&nbsp;&nbsp;Link</a>
+                    </li>
+                    <li class="nav-item">
+                        <a  class="nav-link" href="https://learn.microsoft.com/aspnet/core/" target="_blank">&nbsp;&nbsp;About</a
+                    </li>                    
+                    <li class="nav-item">
+                        <a href="#" class="nav-link nodec" onclick="document.myImage.src=image2.src;" alt="Stefan Weber"  >&nbsp;&nbsp;Version&nbsp;@(version)</a>  
+                     </li>    
+                     <li class="nav-item">
+                        <a href="#" onmouseovers="document.myImage.src=image2.src;" onmouseout="document.myImage.src=image1.src;">
+                        <img name="myImage" src="empty.png" width=120 height=25/>
+
+                        </a>
+                    </li>
+                </ul>
+              
+            </div>
+        </nav>
+
+
+        <script>
+            
+	            var image1 = new Image();
+	            image1.src = "empty.png";
+	            var image2 = new Image();
+	            image2.src = "stef.png";
+
+        </script>
+
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+ 

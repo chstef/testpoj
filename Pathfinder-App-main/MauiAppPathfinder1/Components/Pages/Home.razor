@@ -1,0 +1,416 @@
+﻿@* // <copyright file="Home.razor" company="rpm informatik GmbH">
+// Copyright (c) 2024 All Rights Reserved - rpm informatik GmbH
+// </copyright>
+// <author>Stefan Weber</author>
+// <date>09.09.2024</date>
+// <summary>Homepage for the Pathfinder - App</summary>
+// *@
+
+@page "/"
+@inject NavigationManager NavigationManager
+@using DevExpress.Blazor
+@using DevExpress
+@using MauiAppPathfinder1.Models
+
+<style>
+     btn-test2:hover {
+        background-color: lightsteelblue;
+     }
+     button:hover {
+        background-color: lightsteelblue;
+     }     a:hover {
+        background-color: lightsteelblue;
+     }
+
+    
+</style>
+
+<div class="nav-item px-10">
+    <table class="table table-sm table-light">
+        <tr class="table-light">
+            <td class="table-light bg-light" width="200px">
+              <h3>     Pathfinder</h3>
+            </td>
+            <td class="table-light  bg-light" width="50px">
+                <NavLink class="nav-link btn-test2" href="" Match="NavLinkMatch.All">
+                    <span class="bi bi-house-door-fill-nav-menu btn-test2" aria-hidden="true"></span><button type="button" class="btn btn-light btn-test2">Home</button>
+                </NavLink>
+            </td>
+            <td class="table-light  bg-light" width="70px">
+                <NavLink class="nav-link " href="pageselection">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span><button type="button" class="btn btn-light btn-change2">Path&nbsp;selection</button>
+                </NavLink></td> 
+              @if(true)  {
+              <td class="table-light  bg-light" width="50px">
+                <NavLink class="nav-link " href="#">
+                        <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span><button onclick="@SwitchGridView" type="button" class="btn btn-light btn-change2">Switch</button>
+                    </NavLink>
+                </td>
+              }
+              @if(false)  {
+                <td class="table-light  bg-light" width="50px">
+                <NavLink class="nav-link " href="#">
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span><button onclick="@ExportCsv_Click" type="button" class="btn btn-light btn-change2">Save&nbsp;CSV&nbsp;@SavedExportFile</button>
+                    </NavLink>
+                </td>
+              }
+                <td class="table-light  bg-light"></td>
+                <td class="table-light  bg-light"></td>
+           
+                </tr>
+    </table>
+   
+        </div>
+
+ <!--div id="overviewDemoDropZone" class="card custom-drop-zone bg-light rounded-3 w-100 m-0">
+    <span class="drop-file-icon mb-3"></span>
+    <span>Drag and Drop File Here</span>
+</div-->
+<!--DxUpload Name="myFile" onselect="OnFilesUploading"
+          UploadUrl="https://localhost:10000/api/Upload/Upload/"
+          ExternalDropZoneCssSelector="#overviewDemoDropZone"
+          ExternalDropZoneDragOverCssClass="bg-light border-secondary text-dark">
+</DxUpload-->
+
+ 
+
+<!--div id="overviewDemoDropZone" class="card custom-drop-zone bg-light rounded-3 w-100 m-0">
+    <span>Drag & Drop a file</span>
+    <span>…or click to browse for a file instead.</span>
+</div>
+
+<DxFileInput FilesUploading="OnFilesUploading" 
+             ExternalSelectButtonCssSelector="#overviewDemoDropZone"
+             ExternalDropZoneCssSelector="#overviewDemoDropZone" /-->
+
+ 
+<!-- -------------------------------------------------<br />
+<h3>File Upload </h3>
+
+<InputFile   OnChange="@OnChangeFileInput" multiple />
+
+<img />
+
+<br />
+<br />
+
+
+<div id="overviewDemoDropZone" class="card custom-drop-zone rounded-3 w-100 m-0">
+    <span class="drop-file-icon mb-3"></span>
+    <span class="drop-file-label">Drag and Drop File Here</span><span class="m-1">or</span>
+    <DxButton Id="overviewDemoSelectButton"
+              CssClass="m-1"
+              RenderStyle="ButtonRenderStyle.Primary"
+              Text="Select File" />
+</div>
+<DxFileInput Visible="@UploadVisible"
+             ExternalSelectButtonCssSelector="#overviewDemoSelectButton"
+             ExternalDropZoneCssSelector="#overviewDemoDropZone"
+             ExternalDropZoneDragOverCssClass="custom-drop-zone-hover"
+             MaxFileSize="15000000"
+             FilesUploading="OnFilesUploading"
+             SelectedFilesChanged="@SelectedFilesChanged">
+</DxFileInput-->
+@if (false)
+{
+    <DxTextBox  
+    @bind-Text="@InputTextPathValue"
+    BindValueMode="BindValueMode.OnInput" 
+    @ref="InputTextPath"></DxTextBox>
+    <br />
+    <DxButton Click="@OnClickSelectPath" Text="Select Path or File"></DxButton>
+
+    <br />
+}
+
+<!--label>Search for Files...</!label--><!--DxTextBox @bind-Text="@TextValue"></DxTextBox-->
+
+<style>
+    .my-style{
+        font-style: normal;
+        background-color  : lightgray; 
+        text-decoration: none;
+        --dxbl-btn-link-text-decoration: none;
+    
+    }
+    button span {
+        text-decoration: none;
+       color : black;
+       font-weight : bold;
+        --dxbl-btn-link-text-decoration: none;
+        --dxbl-btn-bg: lightsteelblue;
+        --dxbl-btn-border-color: lightsteelblue;
+    }
+    button span:hover { background-color : lightsteelblue;}
+
+    .dxbl-btn-danger {
+        --dxbl-btn-bg: lightsteelblue;
+        --dxbl-btn-border-color: lightsteelblue;
+    }
+</style>
+
+
+<DxGrid @ref="ProGrid" Data="@SData" ShowSearchBox=true 
+    SearchBoxNullText="Search for Filesentry" 
+    AllowSort="true"
+        AllowSelectRowByClick="true" PageSize="7"
+        SelectionMode="GridSelectionMode.Single" 
+        @bind-SelectedDataItem="@SelectedDataItem"
+        EditMode="GridEditMode.EditRow"
+   EditModelSaving="OnEditModelSaving"
+        DataItemDeleting="OnDataItemDeleting"
+        EditStart="OnEditStart"
+        UnboundColumnData="Grid_CustomUnboundColumnData"
+        PageSizeSelectorVisible="true"
+        PageSizeSelectorItems="@(new int[] { 7, 14, 21, 28 })"
+        PageSizeSelectorAllRowsItemVisible="true"
+        FilterMenuButtonDisplayMode="GridFilterMenuButtonDisplayMode.Never"
+        ShowFilterRow="true"
+        RowDoubleClick="OnRowDoubleClick" CssClass="my-style">
+    <Columns>
+        <DxGridCommandColumn DeleteButtonVisible=true NewButtonVisible=true Width="100"    >
+
+        </DxGridCommandColumn>
+        @if(!hideSelectedColumns){
+        <DxGridDataColumn FieldName="Id2" Caption="Nr." Width="5" UnboundType="GridUnboundColumnType.String" />
+        <DxGridDataColumn FieldName="Name" Caption="Name" />
+        }
+        <DxGridDataColumn FieldName="Dateiname" Caption="Dateiname"></DxGridDataColumn>
+
+
+        <DxGridDataColumn FieldName="PathExists" Caption="Path Exists" Width="67"  >
+              <CellDisplayTemplate  Context="displayContext" >
+                @{
+                    int iv = displayContext.VisibleIndex;
+                    if (iv >= 0)
+                    {
+                        var editModel = (ProDocument)displayContext.Grid.GetDataItem(iv);
+                        if (editModel != null)
+                        {
+                            Testtrue2 = editModel.PathExists;
+                            int idKey = editModel.Id;
+                        }
+                    }
+                    else { Testtrue2 = false; }
+
+                }
+
+            <label class="switch">
+
+                    <InputCheckbox @ref="InputCheckboxSel31" @bind-Value="@Testtrue2"  ></InputCheckbox>
+                <span class="slider round"></span>
+            </label>
+
+            </CellDisplayTemplate>
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="FileExists" Caption="File Exists" Width="67"    >
+            <CellDisplayTemplate Context="displayContext">
+                @{
+                    int iv = displayContext.VisibleIndex;
+                    if (iv >= 0)
+                    {
+                        var editModel = (ProDocument)displayContext.Grid.GetDataItem(iv);
+                        if (editModel != null)
+                        {
+                            Testtrue = editModel.FileExists;
+                            int idKey = editModel.Id;
+                        }
+                    }
+                    else { Testtrue = false; }
+
+                }
+                <label class="switch">
+
+                    <InputCheckbox @ref="@InputCheckboxSel41" @bind-Value="@Testtrue"></InputCheckbox>
+                    <span class="slider round"></span>
+                </label>
+            </CellDisplayTemplate>
+
+        </DxGridDataColumn>
+        <DxGridDataColumn FieldName="Path" Caption="Verzeichnis"></DxGridDataColumn>
+
+        <DxGridDataColumn FieldName="Id2" AllowSort="false" Width="90px" MinWidth="100" TextAlignment="GridTextAlignment.Center" UnboundType="GridUnboundColumnType.String">
+            <CellDisplayTemplate>
+                @{
+                    bool isgueltig = false; string ext = "";
+                    MauiAppPathfinder1.Models.ProDocument proDoc = (context.DataItem as MauiAppPathfinder1.Models.ProDocument);
+                    if (proDoc != null)
+                    {
+                        string myFilePath = proDoc!.Path + proDoc.Dateiname;
+                          ext = Path.GetExtension(myFilePath);
+                        isgueltig = proDoc.PathExists || proDoc.FileExists;
+                    }
+                }
+                <button class="btn btn-link grid-btn-link" @onclick="() =>DoSomething((context.DataItem as MauiAppPathfinder1.Models.ProDocument).Id)">
+                    <div class="grid-column-button-item">
+                     @if(isgueltig)  
+                        @if ((ext == ".zip")|| ext == ".7z")
+                    {
+
+                           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="30px" height="30px"><path d="M 5 10 C 3.300781 10 2 11.300781 2 13 L 2 52 C 2 54.199219 3.800781 56 6 56 L 60 56 C 62.199219 56 64 54.199219 64 52 L 64 23 C 64 21.300781 62.699219 20 61 20 L 58 20 L 58 19 C 58 17.300781 56.699219 16 55 16 L 29.699219 16 C 28.898438 16 28.199219 15.699219 27.597656 15.097656 L 23.902344 11.402344 C 23 10.5 21.699219 10 20.402344 10 Z M 5 12 L 20.402344 12 C 21.199219 12 21.898438 12.300781 22.5 12.902344 L 26.199219 16.597656 C 27.097656 17.5 28.398438 18 29.699219 18 L 55 18 C 55.601563 18 56 18.398438 56 19 L 56 52 C 56 52.601563 56.199219 53.300781 56.597656 54 L 6 54 C 4.898438 54 4 53.101563 4 52 L 4 46 L 45 46 C 45.601563 46 46 45.601563 46 45 C 46 44.398438 45.601563 44 45 44 L 4 44 L 4 13 C 4 12.398438 4.398438 12 5 12 Z M 58 22 L 61 22 C 61.601563 22 62 22.398438 62 23 L 62 52 C 62 53.101563 61.101563 54 60 54 C 58.800781 54 58 52.601563 58 52 Z M 11 24 C 10.398438 24 10 24.398438 10 25 C 10 25.601563 10.398438 26 11 26 L 21 26 C 21.601563 26 22 25.601563 22 25 C 22 24.398438 21.601563 24 21 24 Z M 25 24 C 24.398438 24 24 24.398438 24 25 C 24 25.601563 24.398438 26 25 26 L 31 26 C 31.601563 26 32 25.601563 32 25 C 32 24.398438 31.601563 24 31 24 Z M 11 28 C 10.398438 28 10 28.398438 10 29 C 10 29.601563 10.398438 30 11 30 L 15 30 C 15.601563 30 16 29.601563 16 29 C 16 28.398438 15.601563 28 15 28 Z M 19 28 C 18.398438 28 18 28.398438 18 29 C 18 29.601563 18.398438 30 19 30 L 26 30 C 26.601563 30 27 29.601563 27 29 C 27 28.398438 26.601563 28 26 28 Z M 49 44 C 48.398438 44 48 44.398438 48 45 C 48 45.601563 48.398438 46 49 46 L 53 46 C 53.601563 46 54 45.601563 54 45 C 54 44.398438 53.601563 44 53 44 Z M 7 48 C 6.398438 48 6 48.398438 6 49 L 6 51 C 6 51.601563 6.398438 52 7 52 C 7.601563 52 8 51.601563 8 51 L 8 49 C 8 48.398438 7.601563 48 7 48 Z M 12 48 C 11.398438 48 11 48.398438 11 49 L 11 51 C 11 51.601563 11.398438 52 12 52 C 12.601563 52 13 51.601563 13 51 L 13 49 C 13 48.398438 12.601563 48 12 48 Z M 17 48 C 16.398438 48 16 48.398438 16 49 L 16 51 C 16 51.601563 16.398438 52 17 52 C 17.601563 52 18 51.601563 18 51 L 18 49 C 18 48.398438 17.601563 48 17 48 Z M 22 48 C 21.398438 48 21 48.398438 21 49 L 21 51 C 21 51.601563 21.398438 52 22 52 C 22.601563 52 23 51.601563 23 51 L 23 49 C 23 48.398438 22.601563 48 22 48 Z M 27 48 C 26.398438 48 26 48.398438 26 49 L 26 51 C 26 51.601563 26.398438 52 27 52 C 27.601563 52 28 51.601563 28 51 L 28 49 C 28 48.398438 27.601563 48 27 48 Z M 32 48 C 31.398438 48 31 48.398438 31 49 L 31 51 C 31 51.601563 31.398438 52 32 52 C 32.601563 52 33 51.601563 33 51 L 33 49 C 33 48.398438 32.601563 48 32 48 Z M 37 48 C 36.398438 48 36 48.398438 36 49 L 36 51 C 36 51.601563 36.398438 52 37 52 C 37.601563 52 38 51.601563 38 51 L 38 49 C 38 48.398438 37.601563 48 37 48 Z M 42 48 C 41.398438 48 41 48.398438 41 49 L 41 51 C 41 51.601563 41.398438 52 42 52 C 42.601563 52 43 51.601563 43 51 L 43 49 C 43 48.398438 42.601563 48 42 48 Z M 47 48 C 46.398438 48 46 48.398438 46 49 L 46 51 C 46 51.601563 46.398438 52 47 52 C 47.601563 52 48 51.601563 48 51 L 48 49 C 48 48.398438 47.601563 48 47 48 Z M 52 48 C 51.398438 48 51 48.398438 51 49 L 51 51 C 51 51.601563 51.398438 52 52 52 C 52.601563 52 53 51.601563 53 51 L 53 49 C 53 48.398438 52.601563 48 52 48 Z" /></svg>
+
+                        }
+                        else if (ext == ".pdf")
+                        {
+                           
+                           <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 100 100" width="30px" height="30px">    <path d="M 17.265625 15.960938 C 13.259625 15.960937 10 19.275609 10 23.349609 L 10.09375 78 C 10.09375 81.49907 10.539361 84.736951 13.632812 84.976562 C 13.673138 84.981494 13.708325 85 13.75 85 L 84.917969 85 C 87.168969 85 89 83.168969 89 80.917969 L 89 37 C 89 36.448 88.553 36 88 36 L 84.001953 36 L 84.001953 30.421875 C 84.001953 28.513875 82.447063 26.960938 80.539062 26.960938 L 53.462891 26.960938 C 52.656891 26.960937 52.001953 26.306 52.001953 25.5 L 52.001953 23.195312 C 52.001953 19.206312 48.742328 15.960938 44.736328 15.960938 L 17.265625 15.960938 z M 17.265625 17.960938 L 44.734375 17.960938 C 47.638375 17.960938 50 20.309313 50 23.195312 L 50 25.5 C 50 27.408 51.552937 28.960937 53.460938 28.960938 L 80.539062 28.960938 C 81.345062 28.960937 82.001953 29.615875 82.001953 30.421875 L 82.001953 36 L 16 36 C 15.447 36 15 36.448 15 37 L 15 74.75 L 15.003906 76.039062 C 15.014906 78.983063 15.029328 82.027219 14.236328 82.824219 C 14.151075 82.909472 14.026693 82.982425 13.789062 82.992188 C 13.044543 82.957108 12.09375 82.561495 12.09375 77.998047 L 12 29.824219 L 12 23.349609 C 12 20.378609 14.362625 17.960938 17.265625 17.960938 z M 20.349609 20.960938 C 17.399609 20.960937 15 23.448859 15 26.505859 L 15 31.460938 C 15 31.736937 15.224 31.960938 15.5 31.960938 C 15.776 31.960937 16 31.736937 16 31.460938 L 16 26.505859 C 16 24.000859 17.951609 21.960938 20.349609 21.960938 L 38.5 21.960938 C 38.776 21.960937 39 21.736937 39 21.460938 C 39 21.184938 38.776 20.960938 38.5 20.960938 L 20.349609 20.960938 z M 41.693359 21.001953 C 41.417359 21.001953 41.193359 21.225953 41.193359 21.501953 C 41.193359 21.777953 41.417359 22.001953 41.693359 22.001953 C 44.091359 22.001953 46.042969 24.040875 46.042969 26.546875 C 46.042969 26.822875 46.266969 27.046875 46.542969 27.046875 C 46.818969 27.046875 47.042969 26.822875 47.042969 26.546875 C 47.042969 23.488875 44.642359 21.001953 41.693359 21.001953 z M 17 38 L 87 38 L 87 80.917969 C 87 82.065969 86.065969 83 84.917969 83 L 16.419922 83 C 17.025922 81.426 17.016906 79.04725 17.003906 76.03125 L 17 38 z M 25.5 42 C 25.224 42 25 42.224 25 42.5 L 25 52.5 C 25 52.776 25.224 53 25.5 53 L 49.5 53 C 49.776 53 50 52.776 50 52.5 L 50 42.5 C 50 42.224 49.776 42 49.5 42 L 25.5 42 z M 26 43 L 49 43 L 49 52 L 26 52 L 26 43 z"/></svg>
+                        }
+                        else if (ext == ".sln")
+                        {
+                            <svg xmlns="http://www.w3.org/2000/svg"  viewBox="0 0 80 80" width="30px" height="30px"><path d="M 9 11 C 6.800781 11 5 12.800781 5 15 L 5 65 C 5 67.199219 6.800781 69 9 69 L 71 69 C 73.199219 69 75 67.199219 75 65 L 75 27 C 75 24.800781 73.199219 23 71 23 L 70 23 L 70 21 C 70 18.800781 68.199219 17 66 17 L 28.167969 17 L 27.203125 14.691406 C 26.273438 12.460938 24.085938 11 21.667969 11 Z M 9 13 L 21.667969 13 C 23.285156 13 24.738281 13.96875 25.359375 15.460938 L 26.832031 19 L 66 19 C 67.117188 19 68 19.882813 68 21 L 68 23 L 9 23 C 8.257813 23 7.597656 23.261719 7 23.621094 L 7 15 C 7 13.882813 7.882813 13 9 13 Z M 9 25 L 71 25 C 72.117188 25 73 25.882813 73 27 L 73 65 C 73 66.117188 72.117188 67 71 67 L 9 67 C 7.882813 67 7 66.117188 7 65 L 7 27 C 7 25.882813 7.882813 25 9 25 Z M 69 26 C 68.449219 26 68 26.449219 68 27 C 68 27.550781 68.449219 28 69 28 C 69.550781 28 70 27.550781 70 27 C 70 26.449219 69.550781 26 69 26 Z M 69 30 C 68.449219 30 68 30.449219 68 31 C 68 31.550781 68.449219 32 69 32 C 69.550781 32 70 31.550781 70 31 C 70 30.449219 69.550781 30 69 30 Z M 69 34 C 68.449219 34 68 34.449219 68 35 C 68 35.550781 68.449219 36 69 36 C 69.550781 36 70 35.550781 70 35 C 70 34.449219 69.550781 34 69 34 Z M 69 38 C 68.449219 38 68 38.449219 68 39 C 68 39.550781 68.449219 40 69 40 C 69.550781 40 70 39.550781 70 39 C 70 38.449219 69.550781 38 69 38 Z M 69 42 C 68.449219 42 68 42.449219 68 43 C 68 43.550781 68.449219 44 69 44 C 69.550781 44 70 43.550781 70 43 C 70 42.449219 69.550781 42 69 42 Z M 69 46 C 68.449219 46 68 46.449219 68 47 C 68 47.550781 68.449219 48 69 48 C 69.550781 48 70 47.550781 70 47 C 70 46.449219 69.550781 46 69 46 Z M 69 50 C 68.449219 50 68 50.449219 68 51 C 68 51.550781 68.449219 52 69 52 C 69.550781 52 70 51.550781 70 51 C 70 50.449219 69.550781 50 69 50 Z M 69 54 C 68.449219 54 68 54.449219 68 55 C 68 55.550781 68.449219 56 69 56 C 69.550781 56 70 55.550781 70 55 C 70 54.449219 69.550781 54 69 54 Z M 69 58 C 68.449219 58 68 58.449219 68 59 C 68 59.550781 68.449219 60 69 60 C 69.550781 60 70 59.550781 70 59 C 70 58.449219 69.550781 58 69 58 Z M 9 62 C 8.449219 62 8 62.449219 8 63 C 8 63.550781 8.449219 64 9 64 C 9.550781 64 10 63.550781 10 63 C 10 62.449219 9.550781 62 9 62 Z M 13 62 C 12.449219 62 12 62.449219 12 63 C 12 63.550781 12.449219 64 13 64 C 13.550781 64 14 63.550781 14 63 C 14 62.449219 13.550781 62 13 62 Z M 17 62 C 16.449219 62 16 62.449219 16 63 C 16 63.550781 16.449219 64 17 64 C 17.550781 64 18 63.550781 18 63 C 18 62.449219 17.550781 62 17 62 Z M 21 62 C 20.449219 62 20 62.449219 20 63 C 20 63.550781 20.449219 64 21 64 C 21.550781 64 22 63.550781 22 63 C 22 62.449219 21.550781 62 21 62 Z M 25 62 C 24.449219 62 24 62.449219 24 63 C 24 63.550781 24.449219 64 25 64 C 25.550781 64 26 63.550781 26 63 C 26 62.449219 25.550781 62 25 62 Z M 29 62 C 28.449219 62 28 62.449219 28 63 C 28 63.550781 28.449219 64 29 64 C 29.550781 64 30 63.550781 30 63 C 30 62.449219 29.550781 62 29 62 Z M 33 62 C 32.449219 62 32 62.449219 32 63 C 32 63.550781 32.449219 64 33 64 C 33.550781 64 34 63.550781 34 63 C 34 62.449219 33.550781 62 33 62 Z M 37 62 C 36.449219 62 36 62.449219 36 63 C 36 63.550781 36.449219 64 37 64 C 37.550781 64 38 63.550781 38 63 C 38 62.449219 37.550781 62 37 62 Z M 41 62 C 40.449219 62 40 62.449219 40 63 C 40 63.550781 40.449219 64 41 64 C 41.550781 64 42 63.550781 42 63 C 42 62.449219 41.550781 62 41 62 Z M 45 62 C 44.449219 62 44 62.449219 44 63 C 44 63.550781 44.449219 64 45 64 C 45.550781 64 46 63.550781 46 63 C 46 62.449219 45.550781 62 45 62 Z M 49 62 C 48.449219 62 48 62.449219 48 63 C 48 63.550781 48.449219 64 49 64 C 49.550781 64 50 63.550781 50 63 C 50 62.449219 49.550781 62 49 62 Z M 53 62 C 52.449219 62 52 62.449219 52 63 C 52 63.550781 52.449219 64 53 64 C 53.550781 64 54 63.550781 54 63 C 54 62.449219 53.550781 62 53 62 Z M 57 62 C 56.449219 62 56 62.449219 56 63 C 56 63.550781 56.449219 64 57 64 C 57.550781 64 58 63.550781 58 63 C 58 62.449219 57.550781 62 57 62 Z M 61 62 C 60.449219 62 60 62.449219 60 63 C 60 63.550781 60.449219 64 61 64 C 61.550781 64 62 63.550781 62 63 C 62 62.449219 61.550781 62 61 62 Z M 65 62 C 64.449219 62 64 62.449219 64 63 C 64 63.550781 64.449219 64 65 64 C 65.550781 64 66 63.550781 66 63 C 66 62.449219 65.550781 62 65 62 Z M 69 62 C 68.449219 62 68 62.449219 68 63 C 68 63.550781 68.449219 64 69 64 C 69.550781 64 70 63.550781 70 63 C 70 62.449219 69.550781 62 69 62 Z"/></svg>
+                        }
+                        else
+                        {
+                          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="30px" height="30px"><path d="M 5 4 C 3.3544268 4 2 5.3555411 2 7 L 2 16 L 2 26 L 2 43 C 2 44.644459 3.3544268 46 5 46 L 45 46 C 46.645063 46 48 44.645063 48 43 L 48 26 L 48 16 L 48 11 C 48 9.3549372 46.645063 8 45 8 L 18 8 C 18.08657 8 17.96899 8.000364 17.724609 7.71875 C 17.480227 7.437136 17.179419 6.9699412 16.865234 6.46875 C 16.55105 5.9675588 16.221777 5.4327899 15.806641 4.9628906 C 15.391504 4.4929914 14.818754 4 14 4 L 5 4 z M 5 6 L 14 6 C 13.93925 6 14.06114 6.00701 14.308594 6.2871094 C 14.556051 6.5672101 14.857231 7.0324412 15.169922 7.53125 C 15.482613 8.0300588 15.806429 8.562864 16.212891 9.03125 C 16.619352 9.499636 17.178927 10 18 10 L 45 10 C 45.562937 10 46 10.437063 46 11 L 46 13.1875 C 45.685108 13.07394 45.351843 13 45 13 L 5 13 C 4.6481575 13 4.3148915 13.07394 4 13.1875 L 4 7 C 4 6.4364589 4.4355732 6 5 6 z M 5 15 L 45 15 C 45.56503 15 46 15.43497 46 16 L 46 26 L 46 43 C 46 43.562937 45.562937 44 45 44 L 5 44 C 4.4355732 44 4 43.563541 4 43 L 4 26 L 4 16 C 4 15.43497 4.4349698 15 5 15 z" /></svg>
+                        }
+
+                        <span></span>
+                    </div>
+                </button>
+            </CellDisplayTemplate>
+            <HeaderCaptionTemplate><span title="Click a link below to show more information about an employee">Details</span></HeaderCaptionTemplate>
+        </DxGridDataColumn>
+
+    </Columns>
+</DxGrid>
+<br />
+<style>
+    .cw-480 {
+        width: 150px
+    }
+</style>
+<table><tr><td>
+            Path Exists:
+        </td><td>
+<label class="switch">
+
+    <InputCheckbox @ref="InputCheckboxSel3" @bind-Value="@itemIsSelected3" @bind-Value:after="CheckboxChanged2"></InputCheckbox>
+    <span class="slider round"></span>
+            </label>&nbsp;&nbsp;
+        </td>
+        <td>
+Files Exists:  </td><td>
+<label class="switch">
+
+    <InputCheckbox @ref="InputCheckboxSel4" @bind-Value="@itemIsSelected4" @bind-Value:after="CheckboxChanged"></InputCheckbox>
+    <span class="slider round"></span>
+            </label>&nbsp;&nbsp;
+  </td><td>
+
+<DxDropDownBox @bind-Value="ExtValue" @ref="RefDD"
+               DropDownWidthMode="DropDownWidthMode.EditorWidth"
+               QueryDisplayText="QueryText"
+               InputId="ddbMultipleSelectionListBox"
+               CssClass="cw-480"
+               >
+    <DropDownBodyTemplate>
+        <DxListBox Data="@ListBoxData" TData="ProDocument" TValue="ProDocument"
+                   Values="@(GetListBoxValues(context.DropDownBox))"
+                   ValuesChanged="@(values => ListBoxValuesChanged(values, context.DropDownBox))"
+                   TextFieldName="@nameof(ProDocument.Dateiname)"
+                   SelectionMode="ListBoxSelectionMode.Multiple"
+                   ShowCheckboxes="true"
+                   CssClass="templateListbox"
+                   >
+        </DxListBox>
+    </DropDownBodyTemplate>
+
+        </DxDropDownBox>
+    </td>  </tr>
+</table>
+<!--p class="demo-text cw-480 mt-3">
+    Selected items count: <b>@GetSelectedItemsCount()</b>
+</p-->
+
+<!--
+File exists:
+
+<label class="switch">
+    <input type="checkbox" @ref="InputCheckboxSel" @bind-value="@itemIsSelected" @bind-value:after="CheckboxChanged">
+    <span class="slider round"></span>
+</label>&nbsp;
+
+Path Exists:
+<label class="switch">
+    <input type="checkbox" @ref="InputCheckboxSel2"  @bind-value="@itemIsSelected2" @bind-value:after="CheckboxChanged2">
+    <span class="slider round"></span>
+</label>-->
+ 
+<!-- DxButton Click="@Handler">
+    Test
+    <span style="width: 0.8em; margin-left: 8px;">@(likes < 10 ? likes.ToString() : "9")</span>
+</DxButton -->
+<br /><DxButton Click="@DoubbleOut">Double Out</DxButton>&nbsp;<DxButton Click="@CheckExistsPathandFiles">Check Delete Path's'</DxButton>
+&nbsp;@SelecttoDelete
+<!-- p  class="demo-text cw-480 mt-3">
+    Selected items: <b>@GetSelectedItem()</b>
+</p -->
+<!-- DxSpinEdit Value="15" ShowSpinButtons="false">
+    <Buttons>
+        <DxSpinButtons Position="EditorButtonPosition.Left" />
+    </Buttons>
+</DxSpinEdit -->
+
+
+    <style>
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 23px;
+        }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 15px;
+                width: 15px;
+                left: 4px;
+                bottom: 4px;
+                background-color: white;
+                -webkit-transition: .4s;
+                transition: .4s;
+            }
+
+        input:checked + .slider {
+            background-color: #2196F3;
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px #2196F3;
+        }
+
+        input:checked + .slider:before {
+            -webkit-transform: translateX(26px);
+            -ms-transform: translateX(26px);
+            transform: translateX(26px);
+        }
+
+        .slider.round {
+            border-radius: 34px;
+        }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+    </style>
+ 
+ 
